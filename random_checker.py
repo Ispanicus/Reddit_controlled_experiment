@@ -52,7 +52,7 @@ while True:
                 log.write(log_msg)
                 print(log_msg)
         
-        counter = 0
+        '''counter = 0
         
         for pid in stream: # This will run for 500 posts
             post = reddit.submission(pid)
@@ -80,7 +80,7 @@ while True:
             
             if counter == 501: # When all 500 draws are done, terminate
                 log.write('DONE')
-                break
+                break'''
                 
     time_elapsed = datetime.datetime.today() - start
     time.sleep(86400 - time_elapsed.seconds) # sleep 1 day minus the elapsed time
