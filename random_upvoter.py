@@ -22,8 +22,7 @@ reddit = user_login('7vlklG_rE5V-Al-Sk-eLiQ', 'b478Rm1-9HD8Ob7B_vVYRKAJhoqGLA','
 subreddit = reddit.subreddit('all')
 stream = subreddit.stream.submissions(skip_existing=True)
 now = datetime.datetime.today()
-#column_names = ['id','subreddit', 'treatment', 'created_time', 'visited_time', 'like_count',
-       'comment_count']
+#column_names = ['id','subreddit', 'treatment', 'created_time', 'visited_time', 'like_count', 'comment_count']
 #df = pd.DataFrame(columns = column_names)
 #df.to_parquet('data_random.parquet')
 
@@ -44,9 +43,9 @@ with open('log', 'a') as log:
                 log.write(f'{now} Seen post {post.id}. Skipping\n')
                 continue
                 
-            if temp.score == 1 and temp.num_comments == 0: # verify that it is indeed new, thanks to other bots
+            if post.score == 1 and post.num_comments == 0: # verify that it is indeed new, thanks to other bots
                 treatment = random.randint(0, 1)
-                df.concat([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
+                df.append([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
 
                 if treatment:
                     post.upvote()
@@ -78,30 +77,11 @@ with open('log', 'a') as log:
                     id, subreddit, treatment, created_time, _, _, _ = [value for value in values]
                     post = reddit.submission(id)
                     now = datetime.datetime.today()
-                    df.concat(id, subreddit, treatment, created_time, now, post.ups, post.num_comments)
+                    df.append(id, subreddit, treatment, created_time, now, post.ups, post.num_comments)
                     seen_ids.add(id)
-
-'''
-df = pd.read_parquet('data.parquet')
-df = df.sort_values('saved_time')
-if 'revisit_date' not in df.columns:
-    df['revisit_date'] = None
-
-i = 0
-while True:
-    now = datetime.datetime.today()
-    while df.iloc[i, :].created_time < (now - datetime.timedelta(days=7)):
-        row = df.iloc[i, :]
-        i += 1
-        if not pd.isnull(row.revisit_date):
-            continue # Skip to where we left off
-
-        post_id = row.name
-        print(post_id)
-        post = reddit.submission(post_id)
-        df.loc[post_id, 'revisit_date'] = datetime.datetime.now()
-        df.loc[post_id, 'end_like_count'] = post.ups
-        df.loc[post_id, 'end_comments'] = post.num_comments
-    df.to_parquet('data.parquet')
-    time.sleep(1*60*60) # 1 hour
-'''
+                except Exception as e:
+                    df.to_parquet('data_random.parquet')
+                    log_msg = f'{now} {post.id} FAILED {repr(e)}\n'
+                    log.write(log_msg)
+                    print(log_msg)
+                    
