@@ -61,14 +61,13 @@ while True:
                     
                 if post.score == 1 and post.num_comments == 0: # verify that it is indeed new, thanks to other bots
                     treatment = random.randint(0, 1)
-                    df.append([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
-
                     if treatment:
                         post.upvote()
-
-                    seen.add(post.id)
+                    df.append([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
                     counter +=1
-                
+                    
+                seen.add(post.id)
+                    
             except Exception as e:
                 df.to_parquet('data_random.parquet')
                 log_msg = f'{now} {post.id} FAILED {repr(e)}\n'
