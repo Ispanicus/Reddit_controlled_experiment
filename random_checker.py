@@ -40,9 +40,9 @@ while True:
                 id, subreddit, treatment, created_time, _, _, _ = [value for value in values]
                 now = datetime.datetime.today()
                 
-                if now - created_time < datetime.timedelta(8):
+                if now - created_time < datetime.timedelta(7):
                     post = reddit.submission(id)
-                    df.append(id, subreddit, treatment, created_time, now, post.ups, post.num_comments)
+                    df.loc[df.shape[0]] = [id, subreddit, treatment, created_time, now, post.ups, post.num_comments]
                     
                 seen_ids.add(id)
                 
@@ -67,7 +67,7 @@ while True:
                     treatment = random.randint(0, 1)
                     if treatment:
                         post.upvote()
-                    df.append([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
+                    df.loc[df.shape[0]] = [id, subreddit, treatment, created_time, now, post.ups, post.num_comments]
                     counter +=1
                     
                 seen.add(post.id)

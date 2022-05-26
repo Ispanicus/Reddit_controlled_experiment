@@ -14,9 +14,9 @@ def user_login(client_id, client_secret,username,password,user_agent):
                          user_agent=user_agent)
     return reddit
 
-#column_names = ['id','subreddit', 'treatment', 'created_time', 'visited_time', 'like_count', 'comment_count']
-#df = pd.DataFrame(columns = column_names)
-#df.to_parquet('data_random.parquet')
+column_names = ['id','subreddit', 'treatment', 'created_time', 'visited_time', 'like_count', 'comment_count']
+df = pd.DataFrame(columns = column_names)
+df.to_parquet('data_random.parquet')
 
 while True:
     ua = UserAgent()
@@ -42,12 +42,12 @@ while True:
                 
                 if now - created_time < datetime.timedelta(8):
                     post = reddit.submission(id)
-                    df.append(id, subreddit, treatment, created_time, now, post.ups, post.num_comments)
+                    df.loc[df.shape[0]] = [id, subreddit, treatment, created_time, now, post.ups, post.num_comments]
                     
                 seen_ids.add(id)
                 
             except Exception as e:
-                df.to_parquet('data_random.parquet')
+                df.to_parquet('data_random.parquet', use_deprecated_int96_timestamps=True)
                 log_msg = f'{now} {post.id} FAILED {repr(e)}\n'
                 log.write(log_msg)
                 print(log_msg)
@@ -67,19 +67,19 @@ while True:
                     treatment = random.randint(0, 1)
                     if treatment:
                         post.upvote()
-                    df.append([post.id, post.subreddit.name, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
+                    df.loc[df.shape[0]] = [post.id, post.subreddit.id, treatment, created, now, post.ups, post.num_comments]
                     counter +=1
                     
                 seen.add(post.id)
                     
             except Exception as e:
-                df.to_parquet('data_random.parquet')
+                df.to_parquet('data_random.parquet', use_deprecated_int96_timestamps=True)
                 log_msg = f'{now} {post.id} FAILED {repr(e)}\n'
                 log.write(log_msg)
                 print(log_msg)
             
             if counter == 501: # When all 500 draws are done, terminate
-                df.to_parquet('data_random.parquet')
+                df.to_parquet('data_random.parquet', use_deprecated_int96_timestamps=True)
                 log.write('DONE')
                 break
                 
