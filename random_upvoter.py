@@ -40,7 +40,7 @@ while True:
                 id, subreddit, treatment, created_time, _, _, _ = [value for value in values]
                 now = datetime.datetime.today()
                 
-                if now - created_time < datetime.timedelta(7):
+                if now - created_time < datetime.timedelta(8):
                     post = reddit.submission(id)
                     df.append(id, subreddit, treatment, created_time, now, post.ups, post.num_comments)
                     
@@ -67,7 +67,7 @@ while True:
                     treatment = random.randint(0, 1)
                     if treatment:
                         post.upvote()
-                    df.append([post.id, post.subreddit, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
+                    df.append([post.id, post.subreddit.name, treatment, created, now, post.ups, post.num_comments], ignore_index = True)
                     counter +=1
                     
                 seen.add(post.id)
@@ -79,6 +79,7 @@ while True:
                 print(log_msg)
             
             if counter == 501: # When all 500 draws are done, terminate
+                df.to_parquet('data_random.parquet')
                 log.write('DONE')
                 break
                 
